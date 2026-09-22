@@ -1,4 +1,3 @@
-      correct_ans = st.selectbox("সঠিক উত্তর", ["ক", "খ", "গ", "ঘ"])
 import json
 import os
 import streamlit as st
@@ -30,9 +29,7 @@ def save_data(data):
 if "db" not in st.session_state:
   st.session_state.db = load_data()
 
-# -------------------------------------------------------------------------
 # পাসওয়ার্ড প্রটেকশন (পাসওয়ার্ড: qwerty)
-# -------------------------------------------------------------------------
 if "authenticated" not in st.session_state:
   st.session_state.authenticated = False
 
@@ -50,12 +47,10 @@ if not st.session_state.authenticated:
         st.success("লগইন সফল হয়েছে!")
         st.rerun()
       else:
-        st.error(
-            "ভুল পাসওয়ার্ড! সঠিক পাসওয়ার্ড দিন (পাসওয়ার্ড হলো: qwerty)।"
-        )
-  st.stop()  # পাসওয়ার্ড সঠিক না হলে নিচের অংশ লোড হবে না
+        st.error("ভুল পাসওয়ার্ড! সঠিক পাসওয়ার্ড দিন (পাসওয়ার্ড হলো: qwerty)।")
+  st.stop()
 
-# --- লগইন সফল হলে মূল অ্যাপ শুরু হবে ---
+# লগইন সফল হলে মূল অ্যাপ শুরু হবে
 st.title("🏫 স্মার্ট স্কুল প্রশ্নপত্র ও পরীক্ষা ব্যবস্থাপনা সিস্টেম")
 st.markdown("সৃজনশীল, বহু নির্বাচনী এবং সংক্ষিপ্ত প্রশ্ন তৈরি ও প্রিন্ট প্ল্যাটফর্ম।")
 st.markdown("---")
@@ -101,7 +96,6 @@ creative_total_q_to_answer = st.sidebar.number_input(
     "সৃজনশীল প্রশ্ন কয়টি দিতে হবে?", min_value=1, value=3
 )
 
-# লজআউট বাটন
 if st.sidebar.button("🔒 লগআউট"):
   st.session_state.authenticated = False
   st.rerun()
@@ -260,7 +254,6 @@ with tab5:
   )
   col_rule = "column-count: 2;" if "দুই কলাম" in columns_layout else ""
 
-  # সম্পূর্ণ প্রশ্নপত্রের HTML কন্টেন্ট তৈরি (ডাউনলোড ও প্রিন্টের জন্য)
   db = st.session_state.db
 
   html_content = f"""
@@ -351,7 +344,6 @@ with tab5:
     </html>
     """
 
-  # ডাউনলোড বাটন (সবচেয়ে নির্ভরযোগ্য পদ্ধতি)
   st.download_button(
       label="📥 প্রশ্নপত্র ডাউনলোড করুন (HTML ফাইল - সহজে PDF করুন)",
       data=html_content,
@@ -363,12 +355,11 @@ with tab5:
   st.info(
       "💡 **টিপস:** ডাউনলোড করা HTML ফাইলটিতে ডাবল ক্লিক করে যেকোনো ব্রাউজারে"
       " ওপেন করুন এবং কিবোর্ডের **Ctrl + P** চেপে সরাসরি **Save as PDF** করে"
-      " নিন। এটি ১০০% নিখুঁতভাবে কাজ করবে!"
+      " নিন।"
   )
 
   st.markdown("---")
 
-  # স্ক্রিন প্রিভিউ সেকশন
   st.markdown("### 👀 লাইভ স্ক্রিন প্রিভিউ")
   st.markdown(
       f"""
@@ -382,7 +373,6 @@ with tab5:
       unsafe_allow_html=True,
   )
 
-  # প্রিভিউতে প্রশ্ন রেন্ডার করা
   if db["mcq"]:
     st.markdown(
         f"#### **অংশ-ক: বহু নির্বাচনী প্রশ্ন (MCQ)** [মান: {mcq_mark_per_q} ×"
@@ -408,226 +398,6 @@ with tab5:
 
   if db["creative"]:
     st.markdown("#### **অংশ-গ: সৃজনশীল প্রশ্ন**")
-    for idx, item in enumerate(db["creative"], 1):
-      st.markdown(f"**উদ্দীপক-{idx}:** {item['stem']}")
-      st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;(ক) {item['k']} **[১]**")
-      st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;(খ) {item['kh']} **[২]**")
-      st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;(গ) {item['g']} **[৩]**")
-      st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;(ঘ) {item['gh']} **[৪]**")
-      st.markdown("<br>", unsafe_allow_html=True)
-
-  if show_answers:
-    st.markdown("<hr>### 🔑 উত্তরমালা (Answer Key)", unsafe_allow_html=True)
-    if db["mcq"]:
-      ans_str = ", ".join(
-          [f"{i+1}. ({item['ans']})" for i, item in enumerate(db["mcq"])]
-      )
-      st.markdown(f"**MCQ উত্তর:** {ans_str}")
-    if db["short"]:
-      st.markdown("**সংক্ষিপ্ত প্রশ্নের উত্তর:**")
-      for i, item in enumerate(db["short"], 1):
-        if item["ans"]:
-          st.markdown(f"{i}. {item['ans']}")
-
-  st.markdown("</div>", unsafe_allow_html=True)
-
-      if st.form_submit_button("MCQ সংরক্ষণ করুন"):
-        if q_text and opt_a:
-          st.session_state.db["mcq"].append({
-              "q": q_text,
-              "a": opt_a,
-              "b": opt_b,
-              "c": opt_c,
-              "d": opt_d,
-              "ans": correct_ans,
-          })
-          save_data(st.session_state.db)
-          st.success("MCQ সংরক্ষিত হয়েছে!")
-        else:
-          st.error("প্রশ্ন ও অপশন পূরণ করুন।")
-  else:
-    st.info(
-        "প্রতিটি প্রশ্ন নতুন লাইনে দিন এবং অপশনগুলো ক, খ, গ, ঘ আকারে লিখুন।"
-    )
-    bulk_mcq_text = st.text_area(
-        "এখানে আপনার MCQ গুলো পেস্ট করুন:", height=150
-    )
-    if st.button("বাল্ক MCQ সেভ করুন"):
-      if bulk_mcq_text:
-        for line in bulk_mcq_text.split("\n"):
-          if line.strip():
-            st.session_state.db["mcq"].append({
-                "q": line.strip(),
-                "a": "অপশন ক",
-                "b": "অপশন খ",
-                "c": "অপশন গ",
-                "d": "অপশন ঘ",
-                "ans": "ক",
-            })
-        save_data(st.session_state.db)
-        st.success("বাল্ক MCQ সফলভাবে যুক্ত হয়েছে!")
-
-# --- ট্যাব ২: সৃজনশীল প্রশ্ন ---
-with tab2:
-  st.header("সৃজনশীল প্রশ্ন সংযোজন")
-  with st.form("creative_form_main", clear_on_submit=True):
-    stem = st.text_area("উদ্দীপক লিখুন:")
-    qk = st.text_input("(ক) জ্ঞানমূলক প্রশ্ন")
-    qkh = st.text_input("(খ) অনুধাবনমূলক প্রশ্ন")
-    qg = st.text_input("(গ) প্রয়োগমূলক প্রশ্ন")
-    qgh = st.text_input("(ঘ) উচ্চতর দক্ষতামূলক প্রশ্ন")
-
-    if st.form_submit_button("সৃজনশীল প্রশ্ন সংরক্ষণ করুন"):
-      if stem and qk:
-        st.session_state.db["creative"].append({
-            "stem": stem,
-            "k": qk,
-            "kh": qkh,
-            "g": qg,
-            "gh": qgh,
-        })
-        save_data(st.session_state.db)
-        st.success("সৃজনশীল প্রশ্ন সংরক্ষিত হয়েছে!")
-      else:
-        st.error("উদ্দীপক এবং অন্তত ক-এর প্রশ্ন দিন।")
-
-# --- ট্যাব ৩: সংক্ষিপ্ত প্রশ্ন ---
-with tab3:
-  st.header("সংক্ষিপ্ত প্রশ্ন সংযোজন")
-  with st.form("short_form_main", clear_on_submit=True):
-    short_q = st.text_area("সংক্ষিপ্ত প্রশ্ন লিখুন:")
-    short_ans = st.text_input("উত্তর (ঐচ্ছিক):")
-
-    if st.form_submit_button("সংক্ষিপ্ত প্রশ্ন সংরক্ষণ করুন"):
-      if short_q:
-        st.session_state.db["short"].append({"q": short_q, "ans": short_ans})
-        save_data(st.session_state.db)
-        st.success("সংক্ষিপ্ত প্রশ্ন সংরক্ষিত হয়েছে!")
-      else:
-        st.error("প্রশ্ন লিখুন।")
-
-# --- ট্যাব ৪: প্রশ্ন ব্যাংক (Edit/Delete) ---
-with tab4:
-  st.header("🗂️ সংরক্ষিত প্রশ্ন ব্যাংক (Delete)")
-  db = st.session_state.db
-  sub1, sub2, sub3 = st.tabs(
-      ["MCQ তালিকা", "সৃজনশীল তালিকা", "সংক্ষিপ্ত প্রশ্ন"]
-  )
-
-  with sub1:
-    for i, item in enumerate(db["mcq"]):
-      c1, c2 = st.columns([8, 2])
-      with c1:
-        st.write(f"**{i+1}. {item['q']}**")
-      with c2:
-        if st.button("ডিলিট", key=f"d_mcq_{i}"):
-          db["mcq"].pop(i)
-          save_data(db)
-          st.rerun()
-
-  with sub2:
-    for i, item in enumerate(db["creative"]):
-      c1, c2 = st.columns([8, 2])
-      with c1:
-        st.write(f"**উদ্দীপক-{i+1}:** {item['stem'][:60]}...")
-      with c2:
-        if st.button("ডিলিট", key=f"d_cr_{i}"):
-          db["creative"].pop(i)
-          save_data(db)
-          st.rerun()
-
-  with sub3:
-    for i, item in enumerate(db["short"]):
-      c1, c2 = st.columns([8, 2])
-      with c1:
-        st.write(f"**{i+1}. {item['q']}**")
-      with c2:
-        if st.button("ডিলিট", key=f"d_sh_{i}"):
-          db["short"].pop(i)
-          save_data(db)
-          st.rerun()
-
-# --- ট্যাব ৫: ফাইনাল প্রিভিউ ও প্রিন্ট ---
-with tab5:
-  st.header("🖨️ ফাইনাল প্রশ্নপত্র প্রিভিউ ও প্রিন্ট")
-  show_answers = st.checkbox("উত্তরমালা সহ প্রিন্ট করুন (Answer Key)")
-
-  page_orient = (
-      "size: landscape;" if "Landscape" in orientation else "size: portrait;"
-  )
-  col_rule = "column-count: 2;" if "দুই কলাম" in columns_layout else ""
-
-  st.markdown(
-      f"""
-    <style>
-    @media print {{
-        body {{ background-color: white; color: black; }}
-        [data-testid="stSidebar"], header, footer, .stButton, .stTabs, hr {{ display: none !important; }}
-        .paper-container {{ {page_orient} width: 100% !important; padding: 0px !important; margin: 0px !important; box-shadow: none !important; }}
-    }}
-    .paper-container {{
-        background-color: white; color: black; padding: 40px; margin: 20px auto; max-width: 900px;
-        border: 1px solid #ccc; box-shadow: 0 0 15px rgba(0,0,0,0.1); font-family: 'SolaimanLipi', Arial, sans-serif; font-size: {font_size}px;
-    }}
-    .school-header {{ text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px; }}
-    .question-section {{ {col_rule} column-gap: 30px; }}
-    </style>
-    """,
-      unsafe_allow_html=True,
-  )
-
-  # সরাসরি প্রিন্ট বাটন (জাভাস্ক্রিপ্ট ট্রিগার)
-  st.markdown("""
-        <div style="margin-bottom: 20px;">
-            <button onclick="window.print()" style="background-color: #2e7d32; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold;">
-                🖨️ সরাসরি প্রিন্ট / Save as PDF করুন
-            </button>
-        </div>
-    """, unsafe_allow_html=True)
-
-  st.markdown(
-      f"""
-  <div class="paper-container">
-      <div class="school-header">
-          <h2>{school_name}</h2>
-          <h3>{exam_name}</h3>
-          <p><b>বিষয়:</b> {subject} | <b>শ্রেণি:</b> {class_name} | <b>সময়:</b> {time_limit} | <b>পূর্ণমান:</b> {total_marks}</p>
-      </div>
-  """,
-      unsafe_allow_html=True,
-  )
-
-  db = st.session_state.db
-
-  if db["mcq"]:
-    st.markdown(
-        f"#### **অংশ-ক: বহু নির্বাচনী প্রশ্ন (MCQ)** [মান: {mcq_mark_per_q} ×"
-        f" {mcq_total_q_to_answer} = {mcq_mark_per_q*mcq_total_q_to_answer}]"
-    )
-    st.markdown(f"(যেকোনো {mcq_total_q_to_answer} টি প্রশ্নের উত্তর দাও)")
-    st.markdown('<div class="question-section">', unsafe_allow_html=True)
-    for idx, item in enumerate(db["mcq"], 1):
-      st.markdown(f"**{idx}. {item['q']}**")
-      st.markdown(
-          f"&nbsp;&nbsp;&nbsp;&nbsp;ক) {item['a']} &nbsp;&nbsp; খ)"
-          f" {item['b']} &nbsp;&nbsp; গ) {item['c']} &nbsp;&nbsp; ঘ)"
-          f" {item['d']}"
-      )
-    st.markdown("</div><br>", unsafe_allow_html=True)
-
-  if db["short"]:
-    st.markdown(
-        f"#### **অংশ-খ: সংক্ষিপ্ত প্রশ্ন** [মান: {short_mark_per_q} ×"
-        f" {short_total_q_to_answer} = {short_mark_per_q*short_total_q_to_answer}]"
-    )
-    st.markdown(f"(যেকোনো {short_total_q_to_answer} টি প্রশ্নের উত্তর দাও)")
-    for idx, item in enumerate(db["short"], 1):
-      st.markdown(f"**{idx}. {item['q']}** ______ [{short_mark_per_q}]")
-    st.markdown("<br>", unsafe_allow_html=True)
-
-  if db["creative"]:
-    st.markdown("#### **অংশ-গ: সৃজনশীল প্রশ্ন**")
-    st.markdown(f"(যেকোনো {creative_total_q_to_answer} টি প্রশ্নের উত্তর দাও)")
     for idx, item in enumerate(db["creative"], 1):
       st.markdown(f"**উদ্দীপক-{idx}:** {item['stem']}")
       st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;(ক) {item['k']} **[১]**")
