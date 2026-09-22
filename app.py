@@ -6,29 +6,12 @@ st.set_page_config(page_title="স্কুল প্রশ্নপত্র �
 # কাস্টম CSS স্টাইল (A4 সাইজ এবং প্রিন্ট ফ্রেন্ডলি করার জন্য)
 st.markdown("""
     <style>
-    /* সাধারণ স্টাইল */
+    /* সাধারণ ফন্ট স্টাইল */
     .main-title {
         text-align: center;
         font-family: 'SolaimanLipi', Arial, sans-serif;
     }
     
-    /* প্রিন্ট স্টাইল: প্রিন্ট করার সময় শুধু প্রশ্নপত্রটুকু দেখাবে, বাকি সাইডবার বা বাটন লুকিয়ে থাকবে */
-    @media print {
-        body {
-            background-color: white;
-            color: black;
-        }
-        .stButton, .stTabs, header, footer {
-            display: none !important;
-        }
-        .printable-area {
-            width: 100% !important;
-            padding: 0px !important;
-            margin: 0px !important;
-            box-shadow: none !important;
-        }
-    }
-
     /* A4 পেপার প্রিভিউ বক্স */
     .printable-area {
         background-color: white;
@@ -56,7 +39,7 @@ if 'creative_list' not in st.session_state:
     st.session_state.creative_list = []
 
 st.title("🏫 স্কুল প্রশ্নপত্র জেনারেটর (GitHub + Streamlit)")
-st.write("আপনার স্কুলের প্রশ্ন তৈরি করুন এবং সরাসরি প্রিন্ট বা PDF করুন।")
+st.write("আপনার স্কুলের সৃজনশীল ও বহু নির্বাচনী (MCQ) প্রশ্ন তৈরি করুন এবং প্রিন্ট বা PDF করুন।")
 st.markdown("---")
 
 # ১. পরীক্ষার সাধারণ তথ্য (হেডিং)
@@ -79,7 +62,7 @@ tab_mcq, tab_creative = st.tabs(["📌 বহু নির্বাচনী (MC
 
 # --- MCQ সেকশন ---
 with tab_mcq:
-    st.header("বহু নির্বাচনী প্রশ্ন (MCQ) সংযোজন")
+    st.header("বহু নির্বাচনী প্রশ্ন (MCQ) সংযोजन")
     
     with st.form("mcq_form", clear_on_submit=True):
         mcq_question = st.text_area("প্রশ্ন লিখুন:")
@@ -148,11 +131,34 @@ with tab_creative:
 
 st.markdown("---")
 
-# ৩. A4 সাইজ প্রিন্ট প্রিভিউ সেকশন
-st.subheader("🖨️ চূড়ান্ত প্রশ্নপত্র প্রিভিউ (A4 সাইজ)")
-st.write("নিচে আপনার প্রশ্নপত্রটি প্রফেশনাল ফরম্যাটে দেখা যাচ্ছে। প্রিন্ট করতে ব্রাউজারের প্রিন্ট অপশন (`Ctrl + P`) ব্যবহার করুন।")
+# ৩. Print Preview Mode Toggle (প্রিন্ট প্রিভিউ দেখার জন্য বিশেষ ফিচার)
+st.subheader("🖨️ চূড়ান্ত প্রশ্নপত্র ও প্রিন্ট প্রিভিউ")
+preview_mode = st.toggle("🔍 প্রপার প্রিন্ট প্রিভিউ (Print Preview Mode) চালু করুন")
 
-# প্রিভিউ কন্টেইনার (A4 লুক)
+if preview_mode:
+    st.markdown("""
+        <style>
+        /* প্রিভিউ মোড চালু হলে সাইডবার ও অপ্রয়োজনীয় অংশ লুকিয়ে ফেলবে */
+        [data-testid="stSidebar"], header, footer, .stButton, .stToggle, .stTabs, hr {
+            display: none !important;
+        }
+        .printable-area {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 20px !important;
+            border: none !important;
+            box-shadow: none !important;
+            background: white !important;
+            z-index: 99999;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    st.info("💡 প্রিন্ট প্রিভিউ মোড চালু আছে। PDF সেভ করতে কিবোর্ডের **Ctrl + P** চাপুন এবং Destination এ 'Save as PDF' সিলেক্ট করুন।")
+
+# ৪. A4 সাইজ প্রিভিউ কন্টেইনার
 st.markdown(f"""
 <div class="printable-area">
     <div class="school-header">
@@ -184,6 +190,6 @@ if st.session_state.creative_list:
         st.markdown("<br>", unsafe_allow_html=True)
 
 if not st.session_state.mcq_list and not st.session_state.creative_list:
-    st.info("⚠️ এখনো কোনো প্রশ্ন যোগ করা হয়নি। উপরে ট্যাব থেকে MCQ বা সৃজনশীল প্রশ্ন যোগ করুন।")
+    st.warning("⚠️ এখনো কোনো প্রশ্ন যোগ করা হয়নি। উপরে ট্যাব থেকে MCQ বা সৃজনশীল প্রশ্ন যোগ করুন।")
 
 st.markdown("</div>", unsafe_allow_html=True)
