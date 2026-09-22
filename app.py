@@ -250,11 +250,14 @@ with tab5:
       unsafe_allow_html=True,
   )
 
-  if st.button("📥 প্রিন্ট করুন / Save as PDF"):
-    st.markdown(
-        """<script>window.print();</script>""", unsafe_allow_html=True
-    )
-    st.success("প্রিন্ট ডায়ালগ ওপেন হয়েছে। 'Save as PDF' সিলেক্ট করুন।")
+  # সরাসরি প্রিন্ট বাটন (জাভাস্ক্রিপ্ট ট্রিগার)
+  st.markdown("""
+        <div style="margin-bottom: 20px;">
+            <button onclick="window.print()" style="background-color: #2e7d32; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold;">
+                🖨️ সরাসরি প্রিন্ট / Save as PDF করুন
+            </button>
+        </div>
+    """, unsafe_allow_html=True)
 
   st.markdown(
       f"""
@@ -301,10 +304,10 @@ with tab5:
     st.markdown(f"(যেকোনো {creative_total_q_to_answer} টি প্রশ্নের উত্তর দাও)")
     for idx, item in enumerate(db["creative"], 1):
       st.markdown(f"**উদ্দীপক-{idx}:** {item['stem']}")
-      st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;(ক) {item['k']} <b>[১]</b>")
-      st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;(খ) {item['kh']} <b>[২]</b>")
-      st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;(গ) {item['g']} <b>[৩]</b>")
-      st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;(ঘ) {item['gh']} <b>[৪]</b>")
+      st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;(ক) {item['k']} **[১]**")
+      st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;(খ) {item['kh']} **[২]**")
+      st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;(গ) {item['g']} **[৩]**")
+      st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;(ঘ) {item['gh']} **[৪]**")
       st.markdown("<br>", unsafe_allow_html=True)
 
   if show_answers:
